@@ -26,7 +26,7 @@ function getCacheTtlMs(): number {
 }
 
 /** Kelompokkan transaksi stok keluar per tanggal (YYYY-MM-DD), dijumlahkan. */
-async function getDailyOutHistory(productId: string): Promise<ForecastPoint[]> {
+export async function getDailyOutHistory(productId: string): Promise<ForecastPoint[]> {
   const transactions = await prisma.stockTransaction.findMany({
     where: { productId, type: StockTransactionType.OUT },
     orderBy: { createdAt: "asc" },

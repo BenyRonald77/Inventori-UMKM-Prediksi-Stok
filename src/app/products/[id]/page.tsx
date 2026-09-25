@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ForecastChart } from "@/components/forecast-chart";
 import { Nav } from "@/components/nav";
 import { useAuthGuard } from "@/lib/use-auth-guard";
 
@@ -106,6 +107,11 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             <p className="font-semibold">{product.reorderPoint}</p>
           </div>
         </div>
+      </div>
+
+      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-6">
+        <h2 className="mb-4 font-semibold text-slate-800">Prediksi Kebutuhan Stok</h2>
+        <ForecastChart productId={product.id} />
       </div>
 
       <form
