@@ -1,0 +1,62 @@
+// Prisma schema — Inventori UMKM + Prediksi Stok
+// Default provider: SQLite (mudah dijalankan lokal). Untuk production ganti
+// provider ke "postgresql" dan sesuaikan DATABASE_URL (lihat README.md).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  sku           String   @unique
+  name          String
+  category      String
+  unitPrice     Int
+  currentStock  Int      @default(0)
+  reorderPoint  Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  transactions StockTransaction[]
+  forecasts    ForecastCache[]
+}
+
+// type: "IN" | "OUT" — lihat src/lib/constants.ts
+model StockTransaction {
+  id        String   @id @default(cuid())
+  productId String
+  type      String
+  quantity  Int
+  note      String?
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, createdAt])
+}
+
+// Cache hasil prediksi FastAPI agar tidak selalu dihitung ulang.
+model ForecastCache {
+  id           String   @id @default(cuid())
+  productId    String
+  horizonDays  Int
+  method       String
+  predictions  String // JSON string: [{ date, quantity }]
+  generatedAt  DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, horizonDays])
+}
